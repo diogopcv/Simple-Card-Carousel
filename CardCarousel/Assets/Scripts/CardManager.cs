@@ -94,8 +94,8 @@ public class CardManager : MonoBehaviour
             // Positions in the center of the current focus card
             DisplaceCards(0);
         }
-#elif (UNITY_IOS || UNITY_ANDROID)
-            if (Input.touchCount > 0)
+#elif (UNITY_ANDROID || UNITY_IOS)
+        if (Input.touchCount > 0)
             {
                 Touch touch = Input.GetTouch(0);
 
@@ -109,20 +109,20 @@ public class CardManager : MonoBehaviour
                 else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
                 {
                     drag = false;
-                    if ((deltaPosDragAc / screenWidth) * (sizePanel.x + gapX) < 0.1f)
+                    if ((deltaPosDragAc / screenWidth) * (cardSize.x + gapX) < 0.1f)
                     {
-                        Collider2D cardCollider = Physics2D.OverlapPoint(cam.ScreenToWorldPoint(Input.mousePosition));            
+                        Collider2D cardCollider = Physics2D.OverlapPoint(cam.ScreenToWorldPoint(touch.position));            
 
                         if (cardCollider != null)
                         {                         
                             IClickListener card = cardCollider.GetComponent<IClickListener>();
-                            if (card.id == panelsOrder[modePanels.Length / 2])
+                            if (card.id == cardsOrder[cards.Length / 2])
                             {
                                 card.OnClick();
                             }
                         }
                     }
-                    else if (Mathf.Abs((deltaPosDrag / screenWidth) * (sizePanel.x + gapX)) >= (sizePanel.x + gapX) / 4f)
+                    else if (Mathf.Abs((deltaPosDrag / screenWidth)) >= dragThreshold)
                     {
                         ShiftPanels(deltaPosDrag > 0);
                     }
@@ -135,16 +135,11 @@ public class CardManager : MonoBehaviour
                 deltaPosDrag += (touch.position.x - lastTouchPosDrag);
                 deltaPosDragAc += Mathf.Abs(touch.position.x - lastTouchPosDrag);
                 lastTouchPosDrag = touch.position.x;
-                DisplaceCards((deltaPosDrag / screenWidth) * (sizePanel.x + gapX));
+                DisplaceCards((deltaPosDrag / screenWidth) * (cardSize.x + gapX));
             }
             else
             {
                 DisplaceCards(0);
-            }
-
-            if(Input.GetKeyDown(KeyCode.Escape))
-            {
-                SceneManager.LoadScene(0);
             }
 #endif
     }
